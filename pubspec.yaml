@@ -35,7 +35,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2 # STORE JWT TOKEN
   flutter_form_builder: ^9.5.0 # TO BUILD GOOD UI DESIGN
   form_builder_validators: ^11.0.0 # INPUT VALIDATION
-
+  image_network: ^2.5.6
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

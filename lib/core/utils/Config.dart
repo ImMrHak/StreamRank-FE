@@ -27,4 +27,10 @@ class Config {
     await secureStorage.delete(key: 'jwt_token');
     await secureStorage.delete(key: 'rid');
   }
+
+  // Token validity check
+  static Future<bool> isTokenValid() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
+  }
 }

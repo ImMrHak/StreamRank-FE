@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:streamrank/features/authentication/SignInPage.dart';
+import 'package:streamrank/features/movie/MovieDetailsPage.dart';
 import 'package:streamrank/features/movie/MoviesPage.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/signin',  // You can set this to '/signin' or '/' as needed
       routes: {
         '/signin': (context) => SignInPage(),
-        '/movies': (context) => MoviesPage(),  // Correct route to MoviesPage
+        '/movies': (context) => MoviesPage(),// Correct route to MoviesPage
       },
       // This handles unknown routes (if you attempt to navigate to an undefined route)
       onUnknownRoute: (settings) {

@@ -3,6 +3,7 @@ import 'package:image_network/image_network.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/utils/Config.dart';
+import 'package:streamrank/features/movie/MovieDetailsPage.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -107,14 +108,23 @@ class _MoviesPageState extends State<MoviesPage> {
   }
 
   Widget _buildMoviesList(String token) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: _movies.length,
-            itemBuilder: (context, index) {
-              final movie = _movies[index];
-              return Padding(
+  return Column(
+    children: [
+      Expanded(
+        child: ListView.builder(
+          itemCount: _movies.length,
+          itemBuilder: (context, index) {
+            final movie = _movies[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailsPage(movieId: movie.id, token: token), // Pass the movie ID
+                  ),
+                );
+              },
+              child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,10 +134,8 @@ class _MoviesPageState extends State<MoviesPage> {
                       child: ImageNetwork(
                         height: 150,
                         width: 100,
-                        image: movie.coverImage,
-
+                        image: movie.largeCoverImage,
                         onLoading: CircularProgressIndicator(),
-
                       ),
                     ),
                     SizedBox(width: 16),
@@ -151,21 +159,22 @@ class _MoviesPageState extends State<MoviesPage> {
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            );
+          },
+        ),
+      ),
+      if (_hasMoreMovies)
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            onPressed: () => _fetchNextMovies(token),
+            child: _isLoading
+                ? CircularProgressIndicator(color: Colors.white)
+                : Text('Load More Movies'),
           ),
         ),
-        if (_hasMoreMovies)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () => _fetchNextMovies(token),
-              child: _isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text('Load More Movies'),
-            ),
-          ),
-      ],
-    );
-  }
+    ],
+  );
+}
 }

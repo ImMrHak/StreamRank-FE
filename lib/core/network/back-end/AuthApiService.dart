@@ -9,7 +9,7 @@ class AuthApiService {
   // Sign Up - /SignUp
   Future<Map<String, dynamic>> signUp(UserSignUpDTO signUpDTO) async {
     final response = await http.post(
-      Uri.parse(baseUrl + 'auth/SignUp'),
+      Uri.parse('${baseUrl}auth/SignUp'),
       body: jsonEncode(signUpDTO.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
@@ -41,7 +41,7 @@ class AuthApiService {
   // Sign In - /SignIn
   Future<Map<String, dynamic>> signIn(UserSignInDTO signInDTO) async {
     final response = await http.post(
-      Uri.parse(baseUrl + 'auth/SignIn'),
+      Uri.parse('${baseUrl}auth/SignIn'),
       body: jsonEncode(signInDTO.toJson()),
       headers: {'Content-Type': 'application/json'},
     );
@@ -64,6 +64,7 @@ class AuthApiService {
       return {
         'token': token,
         'rid': rid,
+        'status': 'success'
       };
     } else {
       throw Exception('Failed to sign in');

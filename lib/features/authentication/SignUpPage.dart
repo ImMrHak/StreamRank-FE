@@ -9,6 +9,8 @@ class SignUpPage extends StatelessWidget {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   final AuthApiService authApiService = AuthApiService();
 
+  SignUpPage({super.key});
+
   void _submitForm(BuildContext context) async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState?.value;
@@ -17,22 +19,23 @@ class SignUpPage extends StatelessWidget {
 
         final response = await authApiService.signUp(signUpDTO);
 
-        if (response["status"] == "success")
+        if (response["status"] == "success") {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-up successful!')),
+            const SnackBar(content: Text('Sign-up successful!')),
           );
-        else
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-up failed!')),
+            const SnackBar(content: Text('Sign-up failed!')),
           );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Internal Server Error')),
+          const SnackBar(content: Text('Internal Server Error')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields correctly')),
+        const SnackBar(content: Text('Please fill in all fields correctly')),
       );
     }
   }
@@ -41,7 +44,7 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Stream Rank Sign Up'),
+        title: const Text('Stream Rank Sign Up'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -54,29 +57,29 @@ class SignUpPage extends StatelessWidget {
                 // First Name
                 FormBuilderTextField(
                   name: 'firstName',
-                  decoration: InputDecoration(labelText: 'First Name'),
+                  decoration: const InputDecoration(labelText: 'First Name'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Last Name
                 FormBuilderTextField(
                   name: 'lastName',
-                  decoration: InputDecoration(labelText: 'Last Name'),
+                  decoration: const InputDecoration(labelText: 'Last Name'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Email
                 FormBuilderTextField(
                   name: 'email',
-                  decoration: InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Email'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
@@ -84,24 +87,24 @@ class SignUpPage extends StatelessWidget {
                         errorText: 'Invalid email address'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Username
                 FormBuilderTextField(
                   name: 'userName',
-                  decoration: InputDecoration(labelText: 'Username'),
+                  decoration: const InputDecoration(labelText: 'Username'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Password
                 FormBuilderTextField(
                   name: 'password',
                   obscureText: true,
-                  decoration: InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Password'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
@@ -111,25 +114,25 @@ class SignUpPage extends StatelessWidget {
                         errorText: 'Maximum 20 characters allowed'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Date of Birth
                 FormBuilderDateTimePicker(
                   name: 'dateOfBirth',
                   inputType: InputType.date,
-                  decoration: InputDecoration(labelText: 'Date of Birth'),
+                  decoration: const InputDecoration(labelText: 'Date of Birth'),
                   format: DateFormat('yyyy-MM-dd'),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(
                         errorText: 'Field must not be empty'),
                   ]),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Submit Button
                 ElevatedButton(
                   onPressed: () => _submitForm(context),
-                  child: Text('Sign Up'),
+                  child: const Text('Sign Up'),
                 ),
               ],
             ),

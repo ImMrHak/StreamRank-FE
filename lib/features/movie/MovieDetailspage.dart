@@ -27,19 +27,19 @@ class MovieDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Movie Details'),
+        title: const Text('Movie Details'),
       ),
       body: FutureBuilder<Movie>(
         future: _fetchMovieDetails(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
             );
           } else if (!snapshot.hasData) {
-            return Center(
+            return const Center(
               child: Text('No details available for this movie.'),
             );
           } else {
@@ -57,56 +57,56 @@ class MovieDetailsPage extends StatelessWidget {
                         height: 250,
                         width: 200,
                         image: movie.largeCoverImage,
-                        onLoading: CircularProgressIndicator(),
+                        onLoading: const CircularProgressIndicator(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Movie Title
                     Text(
                       movie.titleLong,
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
                     // Year, Rating, and Language
                     Text(
                       'Year: ${movie.year} | Rating: ${movie.rating.toStringAsFixed(1)} | IMDb Code: ${movie.imdbCode}',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Genres
                     if (movie.genres.isNotEmpty)
                       Text(
                         'Genres: ${movie.genres.join(', ')}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
                       ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Movie Description
                     Text(
                       movie.description.isEmpty
                           ? 'No description available.'
                           : movie.description,
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Torrents Section
                     if (movie.torrents.isNotEmpty)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Available Torrents:',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           ...movie.torrents.map((torrent) {
                             return ListTile(
                               title: Text('${torrent.quality} (${torrent.size})'),
-                              trailing: Icon(Icons.download),
+                              trailing: const Icon(Icons.download),
                               onTap: () {
                                 // Handle torrent download
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +114,7 @@ class MovieDetailsPage extends StatelessWidget {
                                 );
                               },
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                   ],

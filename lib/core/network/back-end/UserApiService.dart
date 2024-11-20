@@ -19,9 +19,9 @@ class UserApiService {
 
     try {
       final response = await http.get(
-        Uri.parse(baseUrl + 'user/getMovies'),
+        Uri.parse('${baseUrl}user/getMovies'),
         headers: {'Authorization': 'Bearer $token'},
-      ).timeout(Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -45,9 +45,9 @@ class UserApiService {
 
     try {
       final response = await http.get(
-        Uri.parse(baseUrl + 'user/getNextMovies?pageNumber=$pageNumber'),
+        Uri.parse('${baseUrl}user/getNextMovies?pageNumber=$pageNumber'),
         headers: {'Authorization': 'Bearer $token'},
-      ).timeout(Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -71,9 +71,9 @@ class UserApiService {
 
     try {
       final response = await http.get(
-        Uri.parse(baseUrl + 'user/getSuggetionMovies?movieId=$movieId'),
+        Uri.parse('${baseUrl}user/getSuggetionMovies?movieId=$movieId'),
         headers: {'Authorization': 'Bearer $token'},
-      ).timeout(Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -97,9 +97,9 @@ class UserApiService {
 
     try {
       final response = await http.get(
-        Uri.parse(baseUrl + 'user/getDetailMovie?movieId=$movieId'),
+        Uri.parse('${baseUrl}user/getDetailMovie?movieId=$movieId'),
         headers: {'Authorization': 'Bearer $token'},
-      ).timeout(Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

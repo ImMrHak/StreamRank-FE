@@ -10,7 +10,7 @@ class Config {
     return dotenv.env['API_URL_YTS'].toString();
   }
 
-  static final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  static const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
    // Retrieve token
   static Future<String?> getToken() async {

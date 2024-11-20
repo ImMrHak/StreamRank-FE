@@ -9,10 +9,12 @@ void main() async {
   MovieApiService service = MovieApiService();
   //service.getMovieDetails(1);
   service.getMovieSuggestions(1);
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,14 +23,14 @@ class MyApp extends StatelessWidget {
       initialRoute: '/signin',  // You can set this to '/signin' or '/' as needed
       routes: {
         '/signin': (context) => SignInPage(),
-        '/movies': (context) => MoviesPage(),// Correct route to MoviesPage
+        '/movies': (context) => const MoviesPage(),// Correct route to MoviesPage
       },
       // This handles unknown routes (if you attempt to navigate to an undefined route)
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
           builder: (context) => Scaffold(
-            appBar: AppBar(title: Text('Page Not Found')),
-            body: Center(child: Text('404 - Page not found')),
+            appBar: AppBar(title: const Text('Page Not Found')),
+            body: const Center(child: Text('404 - Page not found')),
           ),
         );
       },

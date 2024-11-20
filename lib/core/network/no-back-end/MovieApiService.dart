@@ -8,7 +8,7 @@ class MovieApiService {
 
   Future<List<Movie>> getMovies() async {
     try {
-      final response = await http.get(Uri.parse(baseUrl + 'list_movies.json'));
+      final response = await http.get(Uri.parse('${baseUrl}list_movies.json'));
 
       print(response.body);
 
@@ -33,7 +33,7 @@ class MovieApiService {
 
   Future<List<Movie>> getNextMovies(int pageNumber) async {
     try {
-      final response = await http.get(Uri.parse(baseUrl + 'list_movies.json?page=$pageNumber'));
+      final response = await http.get(Uri.parse('${baseUrl}list_movies.json?page=$pageNumber'));
 
       // Check if the response is successful
       if (response.statusCode == 200) {
@@ -92,7 +92,7 @@ Future<List<Movie>> getMovieSuggestions(int movieId) async {
 }
   Future<Movie> getMovieDetails(int movieId) async {
     try {
-      final response = await http.get(Uri.parse(baseUrl + 'movie_details.json?movie_id=$movieId'));
+      final response = await http.get(Uri.parse('${baseUrl}movie_details.json?movie_id=$movieId'));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

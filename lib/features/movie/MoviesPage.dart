@@ -66,17 +66,17 @@ class _MoviesPageState extends State<MoviesPage> {
   Widget build(BuildContext context) {
     return Scaffold(  // Wrap with Scaffold to ensure Material context
       appBar: AppBar(
-        title: Text('Movies'),
+        title: const Text('Movies'),
       ),
       body: FutureBuilder<String?>(
         future: Config.getToken(), // Fetch the token asynchronously
         builder: (context, tokenSnapshot) {
           if (tokenSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (tokenSnapshot.hasError) {
             return Center(child: Text('Error: ${tokenSnapshot.error}'));
           } else if (!tokenSnapshot.hasData || !tokenSnapshot.data!.isNotEmpty) {
-            return Center(child: Text('Please log in to see movies.'));
+            return const Center(child: Text('Please log in to see movies.'));
           } else {
             final token = tokenSnapshot.data!;
 
@@ -86,14 +86,14 @@ class _MoviesPageState extends State<MoviesPage> {
                 future: _fetchMovies(token),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (snapshot.hasData) {
                     _movies = snapshot.data!;  // Set the fetched movies to _movies
                     return _buildMoviesList(token);
                   } else {
-                    return Center(child: Text('No movies found.'));
+                    return const Center(child: Text('No movies found.'));
                   }
                 },
               );
@@ -135,24 +135,24 @@ class _MoviesPageState extends State<MoviesPage> {
                         height: 150,
                         width: 100,
                         image: movie.largeCoverImage,
-                        onLoading: CircularProgressIndicator(),
+                        onLoading: const CircularProgressIndicator(),
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             movie.title,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             '${movie.year} - Rating: ${movie.rating}',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -170,8 +170,8 @@ class _MoviesPageState extends State<MoviesPage> {
           child: ElevatedButton(
             onPressed: () => _fetchNextMovies(token),
             child: _isLoading
-                ? CircularProgressIndicator(color: Colors.white)
-                : Text('Load More Movies'),
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text('Load More Movies'),
           ),
         ),
     ],

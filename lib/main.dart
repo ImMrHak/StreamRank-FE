@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/features/authentication/SignInPage.dart';
-import 'package:streamrank/features/movie/MovieDetailsPage.dart';
 import 'package:streamrank/features/movie/MoviesPage.dart';
 
 void main() async {
-  await dotenv.load(fileName: "../.env");  // Load .env before running the app
+  await dotenv.load(fileName: ".env");  // Load .env before running the app
   MovieApiService service = MovieApiService();
   //service.getMovieDetails(1);
   service.getMovieSuggestions(1);
-  //runApp(MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

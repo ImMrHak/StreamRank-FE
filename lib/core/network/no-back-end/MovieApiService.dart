@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:streamrank/core/network/back-end/ApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/utils/Config.dart';
 
-class MovieApiService {
+class MovieApiService implements ApiService {
   final String baseUrl = Config.moviesBaseUrl;
 
   Future<List<Movie>> getMovies() async {

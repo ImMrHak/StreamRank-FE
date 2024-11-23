@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:image_network/image_network.dart';
+import 'package:streamrank/core/network/back-end/ApiService.dart';
+import 'package:streamrank/core/network/back-end/AuthApiService.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
+import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/core/utils/Config.dart';
 import 'package:streamrank/features/movie/MovieDetailsPage.dart';
+
+import 'package:flutter/material.dart';
+import 'package:image_network/image_network.dart';
+import 'package:streamrank/core/network/back-end/ApiService.dart';
+import 'package:streamrank/core/network/back-end/UserApiService.dart';
+import 'package:streamrank/core/network/models/Movie.dart';
+import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -19,18 +29,26 @@ class _MoviesPageState extends State<MoviesPage> {
   bool _hasMoreMovies = true; // Flag to determine if there are more movies to load
 
   // Fetch the list of movies (Initial fetch)
-  Future<List<Movie>> _fetchMovies(String token) async {
-    final apiService = UserApiService();
+  Future<List<Movie>> _fetchMovies() async {
+    ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
+
     try {
-      // Call the getMovies API method (Only for the initial fetch)
-      return await apiService.getMovies(token);
+      // Try to fetch movies from UserApiService first
+      return await apiService.getMovies();
     } catch (e) {
-      throw Exception('Failed to load movies: $e');
+      // If an error occurs, fallback to MovieApiService
+      print("Error fetching movies from UserApiService: $e");
+      apiService = MovieApiService();
+      try {
+        return await apiService.getMovies();
+      } catch (e) {
+        throw Exception('Failed to load movies from both services: $e');
+      }
     }
   }
 
   // Fetch next page of movies (for subsequent fetches)
-  Future<void> _fetchNextMovies(String token) async {
+  Future<void> _fetchNextMovies() async {
     if (_isLoading || !_hasMoreMovies) return;  // Prevent fetching if already loading or no more movies
 
     setState(() {
@@ -39,7 +57,7 @@ class _MoviesPageState extends State<MoviesPage> {
 
     try {
       final apiService = UserApiService();
-      final newMovies = await apiService.getNextMovies(_currentPage, token);
+      final newMovies = await apiService.getNextMovies(_currentPage);
       if (newMovies.isEmpty) {
         setState(() {
           _hasMoreMovies = false;  // No more movies to fetch
@@ -53,7 +71,7 @@ class _MoviesPageState extends State<MoviesPage> {
     } catch (e) {
       // Handle error (e.g., show an error message)
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load next movies: $e'))
+          SnackBar(content: Text('Failed to load next movies: $e'))
       );
     } finally {
       setState(() {
@@ -68,113 +86,92 @@ class _MoviesPageState extends State<MoviesPage> {
       appBar: AppBar(
         title: const Text('Movies'),
       ),
-      body: FutureBuilder<String?>(
-        future: Config.getToken(), // Fetch the token asynchronously
-        builder: (context, tokenSnapshot) {
-          if (tokenSnapshot.connectionState == ConnectionState.waiting) {
+      body: FutureBuilder<List<Movie>>(
+        future: _fetchMovies(), // Fetch the initial list of movies
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (tokenSnapshot.hasError) {
-            return Center(child: Text('Error: ${tokenSnapshot.error}'));
-          } else if (!tokenSnapshot.hasData || !tokenSnapshot.data!.isNotEmpty) {
-            return const Center(child: Text('Please log in to see movies.'));
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            _movies = snapshot.data!;  // Set the fetched movies to _movies
+            return _buildMoviesList();
           } else {
-            final token = tokenSnapshot.data!;
-
-            // Fetch initial movies if _movies is empty
-            if (_movies.isEmpty) {
-              return FutureBuilder<List<Movie>>(
-                future: _fetchMovies(token),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.hasData) {
-                    _movies = snapshot.data!;  // Set the fetched movies to _movies
-                    return _buildMoviesList(token);
-                  } else {
-                    return const Center(child: Text('No movies found.'));
-                  }
-                },
-              );
-            }
-
-            // Once movies are loaded, build the movies list
-            return _buildMoviesList(token);
+            return const Center(child: Text('No movies found.'));
           }
         },
       ),
     );
   }
 
-  Widget _buildMoviesList(String token) {
-  return Column(
-    children: [
-      Expanded(
-        child: ListView.builder(
-          itemCount: _movies.length,
-          itemBuilder: (context, index) {
-            final movie = _movies[index];
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MovieDetailsPage(movieId: movie.id, token: token), // Pass the movie ID
+  Widget _buildMoviesList() {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: _movies.length,
+            itemBuilder: (context, index) {
+              final movie = _movies[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailsPage(movieId: movie.id), // No token required
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: ImageNetwork(
+                          height: 150,
+                          width: 100,
+                          image: movie.largeCoverImage,
+                          onLoading: const CircularProgressIndicator(),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              movie.title,
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${movie.year} - Rating: ${movie.rating}',
+                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: ImageNetwork(
-                        height: 150,
-                        width: 100,
-                        image: movie.largeCoverImage,
-                        onLoading: const CircularProgressIndicator(),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            movie.title,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${movie.year} - Rating: ${movie.rating}',
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
-              ),
-            );
-          },
-        ),
-      ),
-      if (_hasMoreMovies)
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () => _fetchNextMovies(token),
-            child: _isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Load More Movies'),
+              );
+            },
           ),
         ),
-    ],
-  );
-}
+        if (_hasMoreMovies)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () => _fetchNextMovies(),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Load More Movies'),
+            ),
+          ),
+      ],
+    );
+  }
 }

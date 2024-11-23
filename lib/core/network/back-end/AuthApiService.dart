@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:streamrank/core/network/back-end/ApiService.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignUpDTO.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignInDTO.dart';
 import 'package:streamrank/core/utils/Config.dart';
@@ -7,6 +8,7 @@ import 'package:streamrank/core/utils/Config.dart';
 class AuthApiService {
   final String baseUrl = Config.springBaseUrl;
   // Sign Up - /SignUp
+  @override
   Future<Map<String, dynamic>> signUp(UserSignUpDTO signUpDTO) async {
     final response = await http.post(
       Uri.parse('${baseUrl}auth/SignUp'),
@@ -70,5 +72,26 @@ class AuthApiService {
     } else {
       throw Exception('Failed to sign in');
     }
+  }
+
+  static Future<bool> ping() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${Config.springBaseUrl}auth/ping'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));  // Increase timeout if needed
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['status'] == 'success') ? true : false;
+      } else {
+        // Log the status code if the request fails
+        print('Ping failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Log the exception if there is an error
+      print('Ping request error: $e');
+    }
+    return false;
   }
 }

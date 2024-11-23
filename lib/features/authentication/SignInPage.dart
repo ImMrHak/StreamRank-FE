@@ -162,6 +162,16 @@ class _SignInPageState extends State<SignInPage> {
                       },
                       child: const Text('Don’t have an account? Sign Up'),
                     ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MoviesPage()),
+                        );
+                      },
+                      child: const Text('Access movies? Skip Login'),
+                    ),
                   ],
                 ),
               ),

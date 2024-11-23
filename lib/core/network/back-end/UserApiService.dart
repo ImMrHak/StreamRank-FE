@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:streamrank/core/network/back-end/ApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/utils/Config.dart';
 
-class UserApiService {
+class UserApiService implements ApiService {
   final String baseUrl = Config.springBaseUrl;
 
   // Check if the token is valid
@@ -12,7 +13,8 @@ class UserApiService {
   }
 
   // Fetch List Movies - /getMovies
-  Future<List<Movie>> getMovies(String? token) async {
+  Future<List<Movie>> getMovies() async {
+    String token = Config.getToken() as String;
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }
@@ -38,7 +40,8 @@ class UserApiService {
   }
 
   // Fetch List Next Movies - /getNextMovies
-  Future<List<Movie>> getNextMovies(int pageNumber, String? token) async {
+  Future<List<Movie>> getNextMovies(int pageNumber) async {
+    String token = Config.getToken() as String;
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }
@@ -64,7 +67,8 @@ class UserApiService {
   }
 
   // Get List Movie Suggestions - /getSuggetionMovies
-  Future<List<Movie>> getMovieSuggestions(int movieId, String? token) async {
+  Future<List<Movie>> getMovieSuggestions(int movieId) async {
+    String token = Config.getToken() as String;
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }
@@ -90,7 +94,8 @@ class UserApiService {
   }
 
   // Get Movie Details - /getDetailMovie
-  Future<Movie> getMovieDetails(int movieId, String? token) async {
+  Future<Movie> getMovieDetails(int movieId) async {
+    String token = Config.getToken() as String;
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }

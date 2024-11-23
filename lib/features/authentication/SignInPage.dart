@@ -6,11 +6,18 @@ import 'package:streamrank/core/network/back-end/dto/authentication/UserSignInDT
 import 'package:streamrank/features/authentication/SignUpPage.dart';
 import 'package:streamrank/features/movie/MoviesPage.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends StatefulWidget {
+  const SignInPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
   final AuthApiService authApiService = AuthApiService();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-
-  SignInPage({super.key});
+  bool _isPasswordVisible = false;
+  bool _rememberMe = false;
 
   void _submitForm(BuildContext context) async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
@@ -24,7 +31,8 @@ class SignInPage extends StatelessWidget {
             const SnackBar(content: Text('Sign-in successful!')),
           );
 
-          Navigator.push(
+
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => MoviesPage()),
           );
@@ -35,7 +43,7 @@ class SignInPage extends StatelessWidget {
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('internal server error')),
+          const SnackBar(content: Text('Internal server error')),
         );
       }
     } else {
@@ -48,52 +56,120 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            children: [
-              FormBuilderTextField(
-                name: 'usernameOrEmail',
-                decoration: const InputDecoration(labelText: 'Username or Email'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
+      body: FormBuilder(
+        key: _formKey,
+        child: Center(
+          child: Card(
+            elevation: 8,
+            child: Container(
+              padding: const EdgeInsets.all(32.0),
+              constraints: const BoxConstraints(maxWidth: 350),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const FlutterLogo(size: 100),
+                    _gap(),
+                    Text(
+                      "Welcome Back!",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Enter your username and password to continue.",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    _gap(),
+                    FormBuilderTextField(
+                      name: 'usernameOrEmail',
+                      decoration: const InputDecoration(
+                        labelText: 'Username or Email',
+                        hintText: 'Enter your email or username',
+                        prefixIcon: Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                      ]),
+                    ),
+                    _gap(),
+                    FormBuilderTextField(
+                      name: 'password',
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(_isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                        FormBuilderValidators.minLength(6),
+                      ]),
+                    ),
+                    _gap(),
+                    CheckboxListTile(
+                      value: _rememberMe,
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _rememberMe = value;
+                          });
+                        }
+                      },
+                      title: const Text('Remember me'),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      dense: true,
+                      contentPadding: const EdgeInsets.all(0),
+                    ),
+                    _gap(),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Text(
+                            'Sign In',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        onPressed: () => _submitForm(context),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                        );
+                      },
+                      child: const Text('Don’t have an account? Sign Up'),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              FormBuilderTextField(
-                name: 'password',
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.minLength(6),
-                ]),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => _submitForm(context),
-                child: const Text('Sign In'),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to the SignUpPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignUpPage()),
-                  );
-                },
-                child: const Text('Sign Up'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+  Widget _gap() => const SizedBox(height: 16);
 }

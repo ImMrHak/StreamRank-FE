@@ -32,6 +32,7 @@ class AuthApiService {
       return {
         'token': token,
         'rid': rid,
+        'status': 'success'
       };
     } else {
       throw Exception('Failed to sign up');

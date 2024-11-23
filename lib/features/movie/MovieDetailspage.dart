@@ -4,7 +4,7 @@ import 'package:streamrank/core/network/back-end/ApiService.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 
-class MovieDetailsPage extends StatelessWidget {
+class MovieDetailsPage extends StatefulWidget {
   final int movieId;
 
   const MovieDetailsPage({
@@ -12,14 +12,37 @@ class MovieDetailsPage extends StatelessWidget {
     required this.movieId,
   });
 
+  @override
+  _MovieDetailsPageState createState() => _MovieDetailsPageState();
+}
+
+class _MovieDetailsPageState extends State<MovieDetailsPage> {
+  final List<Movie> _favoriteMovies = []; // List to store favorite movies
+
   // Fetch movie details without authentication
   Future<Movie> _fetchMovieDetails() async {
-    ApiService apiService = MovieApiService();  // Use MovieApiService directly without authentication
+    ApiService apiService = MovieApiService();
     try {
-      return await apiService.getMovieDetails(movieId);
+      return await apiService.getMovieDetails(widget.movieId);
     } catch (e) {
       throw Exception('Failed to load movie details: $e');
     }
+  }
+
+  // Add movie to favorites
+  void _addToFavorites(Movie movie) {
+    setState(() {
+      if (!_favoriteMovies.contains(movie)) {
+        _favoriteMovies.add(movie);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${movie.title} added to favorites!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${movie.title} is already in favorites!')),
+        );
+      }
+    });
   }
 
   @override
@@ -109,6 +132,42 @@ class MovieDetailsPage extends StatelessWidget {
               ),
             );
           }
+        },
+      ),
+      bottomNavigationBar: FutureBuilder<Movie>(
+        future: _fetchMovieDetails(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done || !snapshot.hasData) {
+            return const SizedBox.shrink();
+          }
+          final movie = snapshot.data!;
+          return BottomNavigationBar(
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.favorite),
+                label: 'Favorite',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.play_circle_fill),
+                label: 'Watch',
+              ),
+            ],
+            onTap: (index) {
+              if (index == 0) {
+                _addToFavorites(movie);
+              } else if (index == 1) {
+                Navigator.pop(context); // Go back to the main page
+              } else if (index == 2) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Watch feature coming soon!')),
+                );
+              }
+            },
+          );
         },
       ),
     );

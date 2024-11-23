@@ -5,15 +5,8 @@ import 'package:streamrank/core/network/back-end/AuthApiService.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
-import 'package:streamrank/core/utils/Config.dart';
 import 'package:streamrank/features/movie/MovieDetailsPage.dart';
-
-import 'package:flutter/material.dart';
-import 'package:image_network/image_network.dart';
-import 'package:streamrank/core/network/back-end/ApiService.dart';
-import 'package:streamrank/core/network/back-end/UserApiService.dart';
-import 'package:streamrank/core/network/models/Movie.dart';
-import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
+import 'package:streamrank/features/movie/FavoriteMoviesPage.dart'; // Import the FavoriteMoviesPage
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -23,20 +16,20 @@ class MoviesPage extends StatefulWidget {
 }
 
 class _MoviesPageState extends State<MoviesPage> {
-  List<Movie> _movies = [];  // List to store fetched movies
-  int _currentPage = 1;       // Current page number
-  bool _isLoading = false;    // Track if movies are being fetched
-  bool _hasMoreMovies = true; // Flag to determine if there are more movies to load
+  List<Movie> _movies = [];
+  List<Movie> _favoriteMovies = []; // List to hold favorite movies
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreMovies = true;
+  bool _isSearchMode = false;
+  TextEditingController _searchController = TextEditingController();
 
-  // Fetch the list of movies (Initial fetch)
   Future<List<Movie>> _fetchMovies() async {
     ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
 
     try {
-      // Try to fetch movies from UserApiService first
       return await apiService.getMovies();
     } catch (e) {
-      // If an error occurs, fallback to MovieApiService
       print("Error fetching movies from UserApiService: $e");
       apiService = MovieApiService();
       try {
@@ -47,9 +40,8 @@ class _MoviesPageState extends State<MoviesPage> {
     }
   }
 
-  // Fetch next page of movies (for subsequent fetches)
   Future<void> _fetchNextMovies() async {
-    if (_isLoading || !_hasMoreMovies) return;  // Prevent fetching if already loading or no more movies
+    if (_isLoading || !_hasMoreMovies) return;
 
     setState(() {
       _isLoading = true;
@@ -60,48 +52,23 @@ class _MoviesPageState extends State<MoviesPage> {
       final newMovies = await apiService.getNextMovies(_currentPage);
       if (newMovies.isEmpty) {
         setState(() {
-          _hasMoreMovies = false;  // No more movies to fetch
+          _hasMoreMovies = false;
         });
       } else {
         setState(() {
-          _movies.addAll(newMovies);  // Append new movies
-          _currentPage++;             // Increment page number
+          _movies.addAll(newMovies);
+          _currentPage++;
         });
       }
     } catch (e) {
-      // Handle error (e.g., show an error message)
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load next movies: $e'))
+        SnackBar(content: Text('Failed to load next movies: $e')),
       );
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(  // Wrap with Scaffold to ensure Material context
-      appBar: AppBar(
-        title: const Text('Movies'),
-      ),
-      body: FutureBuilder<List<Movie>>(
-        future: _fetchMovies(), // Fetch the initial list of movies
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            _movies = snapshot.data!;  // Set the fetched movies to _movies
-            return _buildMoviesList();
-          } else {
-            return const Center(child: Text('No movies found.'));
-          }
-        },
-      ),
-    );
   }
 
   Widget _buildMoviesList() {
@@ -117,7 +84,7 @@ class _MoviesPageState extends State<MoviesPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MovieDetailsPage(movieId: movie.id), // No token required
+                      builder: (context) => MovieDetailsPage(movieId: movie.id),
                     ),
                   );
                 },
@@ -154,6 +121,29 @@ class _MoviesPageState extends State<MoviesPage> {
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: Icon(
+                          _favoriteMovies.contains(movie)
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: _favoriteMovies.contains(movie) ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            if (_favoriteMovies.contains(movie)) {
+                              _favoriteMovies.remove(movie);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${movie.title} removed from favorites!')),
+                              );
+                            } else {
+                              _favoriteMovies.add(movie);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${movie.title} added to favorites!')),
+                              );
+                            }
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -172,6 +162,118 @@ class _MoviesPageState extends State<MoviesPage> {
             ),
           ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: _isSearchMode
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search movies...',
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (query) {
+                  // Handle search query
+                  print('Search query: $query');
+                },
+              )
+            : const Text('StreamRank'),
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: Icon(_isSearchMode ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                _isSearchMode = !_isSearchMode;
+                if (!_isSearchMode) {
+                  _searchController.clear();
+                }
+              });
+            },
+          ),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: const Text(
+                'StreamRank',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.movie),
+              title: const Text('Movies'),
+              onTap: () {
+                // Navigate to Movies page
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite),
+              title: const Text('Favorites'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FavoriteMoviesPage(
+                      favoriteMovies: _favoriteMovies,
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                // Navigate to Profile page
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.live_tv),
+              title: const Text('Channels'),
+              onTap: () {
+                // Navigate to Channels page
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.animation),
+              title: const Text('Animes'),
+              onTap: () {
+                // Navigate to Animes page
+              },
+            ),
+          ],
+        ),
+      ),
+      body: FutureBuilder<List<Movie>>(
+        future: _fetchMovies(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            _movies = snapshot.data!;
+            return _buildMoviesList();
+          } else {
+            return const Center(child: Text('No movies found.'));
+          }
+        },
+      ),
     );
   }
 }

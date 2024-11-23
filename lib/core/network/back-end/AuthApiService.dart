@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:streamrank/core/network/back-end/ApiService.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignUpDTO.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignInDTO.dart';
 import 'package:streamrank/core/utils/Config.dart';

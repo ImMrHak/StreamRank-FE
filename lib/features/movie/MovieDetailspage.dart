@@ -176,6 +176,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
               ),
             ],
             onTap: (index) {
+              if(!AuthApiService.isSignedIn) index++;
               if (index == 0) {
                 _addToFavorites(movie);
               } else if (index == 1) {

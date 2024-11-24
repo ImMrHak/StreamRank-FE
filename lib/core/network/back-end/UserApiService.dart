@@ -45,7 +45,7 @@ class UserApiService implements ApiService {
 
   // Fetch List Next Movies - /getNextMovies
   Future<List<Movie>> getNextMovies(int pageNumber) async {
-    String token = Config.getToken() as String;
+    String token = await Config.getToken() as String;
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }

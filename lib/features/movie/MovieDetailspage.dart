@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_network/image_network.dart';
 import 'package:streamrank/core/network/back-end/ApiService.dart';
+import 'package:streamrank/core/network/back-end/AuthApiService.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/FavoriteMovie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
@@ -158,13 +159,14 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
           }
           final movie = snapshot.data!;
           return BottomNavigationBar(
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
-                label: 'Favorite',
-
-              ),
-              BottomNavigationBarItem(
+            items: [
+              if(AuthApiService.isSignedIn) ...[
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favorite',
+                )
+              ],
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: 'Home',
               ),

@@ -7,7 +7,7 @@ import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/core/utils/Config.dart';
 import 'package:streamrank/features/authentication/SignInPage.dart';
-import 'package:streamrank/features/movie/FavoriteMoviesPage.dart';
+import 'package:streamrank/features/favorite/FavoriteMoviesPage.dart';
 import 'package:streamrank/features/movie/MovieDetailsPage.dart';
 import 'package:streamrank/features/profile/Profile.dart';
 import 'package:streamrank/features/widgets/custom_drawer.dart';

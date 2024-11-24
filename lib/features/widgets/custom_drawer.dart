@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:streamrank/core/network/back-end/AuthApiService.dart';
 import 'package:streamrank/core/utils/Config.dart';
 import 'package:streamrank/features/authentication/SignInPage.dart';
-import 'package:streamrank/features/movie/FavoriteMoviesPage.dart';
+import 'package:streamrank/features/favorite/FavoriteMoviesPage.dart';
+import 'package:streamrank/features/movie/MoviesPage.dart';
 import 'package:streamrank/features/profile/Profile.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -23,7 +24,12 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.movie),
             title: const Text('Movies'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const MoviesPage()));
+            },
           ),
           ListTile(
             leading: const Icon(Icons.live_tv),

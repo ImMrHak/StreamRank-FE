@@ -50,7 +50,6 @@ Widget build(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Username: ${user.userName}', style: const TextStyle(fontSize: 18)),
                 Text('First Name: ${user.firstName}', style: const TextStyle(fontSize: 18)),
                 Text('Last Name: ${user.lastName}', style: const TextStyle(fontSize: 18)),
                 Text('Email: ${user.email}', style: const TextStyle(fontSize: 18)),

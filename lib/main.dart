@@ -9,6 +9,14 @@ import 'package:streamrank/features/movie/MoviesPage.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");  // Load .env before running the app
+/*
+  AuthApiService authApiService = AuthApiService();
+
+  authApiService.signIn(new UserSignInDTO(usernameOrEmail: "yassine2001", password: "yassine2001"));
+
+  UserApiService userApiService = UserApiService();
+  print(userApiService.getMyInfo());*/
+
   runApp(const MyApp());
 }
 

@@ -9,7 +9,8 @@ import 'package:streamrank/core/utils/Config.dart';
 import 'package:streamrank/features/authentication/SignInPage.dart';
 import 'package:streamrank/features/movie/FavoriteMoviesPage.dart';
 import 'package:streamrank/features/movie/MovieDetailsPage.dart';
-import 'package:streamrank/features/movie/Profile.dart';
+import 'package:streamrank/features/profile/Profile.dart';
+import 'package:streamrank/features/widgets/custom_drawer.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -32,7 +33,8 @@ class _MoviesPageState extends State<MoviesPage> {
     super.initState();
     _scrollController.addListener(() {
       if (_isLoading || !_hasMoreMovies) return;
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
         _fetchNextMovies();
       }
     });
@@ -46,7 +48,9 @@ class _MoviesPageState extends State<MoviesPage> {
   }
 
   Future<void> _fetchInitialMovies() async {
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final movies = await _fetchMovies();
       setState(() {
@@ -54,14 +58,18 @@ class _MoviesPageState extends State<MoviesPage> {
         _currentPage++;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load movies: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to load movies: $e')));
     } finally {
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<List<Movie>> _fetchMovies() async {
-    ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
+    ApiService apiService =
+        (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
     try {
       return await apiService.getMovies();
     } catch (e) {
@@ -77,8 +85,11 @@ class _MoviesPageState extends State<MoviesPage> {
 
   Future<void> _searchMovies(String query) async {
     if (query.isNotEmpty) {
-      setState(() { _isLoading = true; });
-      ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
+      setState(() {
+        _isLoading = true;
+      });
+      ApiService apiService =
+          (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
       try {
         final searchedMovies = await apiService.searchMovies(query);
         setState(() {
@@ -87,9 +98,12 @@ class _MoviesPageState extends State<MoviesPage> {
           _hasMoreMovies = false; // No more movies to load after search
         });
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to search movies: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to search movies: $e')));
       } finally {
-        setState(() { _isLoading = false; });
+        setState(() {
+          _isLoading = false;
+        });
       }
     } else {
       await _fetchInitialMovies(); // Fetch original movie list if query is empty
@@ -98,12 +112,16 @@ class _MoviesPageState extends State<MoviesPage> {
 
   Future<void> _fetchNextMovies() async {
     if (_isLoading || !_hasMoreMovies) return;
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final apiService = UserApiService();
       final newMovies = await apiService.getNextMovies(_currentPage);
       if (newMovies.isEmpty) {
-        setState(() { _hasMoreMovies = false; });
+        setState(() {
+          _hasMoreMovies = false;
+        });
       } else {
         setState(() {
           _movies.addAll(newMovies);
@@ -111,9 +129,12 @@ class _MoviesPageState extends State<MoviesPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load next movies: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load next movies: $e')));
     } finally {
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -123,21 +144,30 @@ class _MoviesPageState extends State<MoviesPage> {
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
-            itemCount: _movies.length + (_hasMoreMovies ? 1 : 0), // Add an extra item for loading indicator
+            itemCount: _movies.length +
+                (_hasMoreMovies
+                    ? 1
+                    : 0), // Add an extra item for loading indicator
             itemBuilder: (context, index) {
-              if (index == _movies.length) { // Show a loading indicator at the end of the list
-                return _isLoading ? Center(child: CircularProgressIndicator()) : SizedBox.shrink();
+              if (index == _movies.length) {
+                // Show a loading indicator at the end of the list
+                return _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SizedBox.shrink();
               }
               final movie = _movies[index];
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MovieDetailsPage(movieId: movie.id)),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MovieDetailsPage(movieId: movie.id)),
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -157,14 +187,16 @@ class _MoviesPageState extends State<MoviesPage> {
                           children: [
                             Text(
                               movie.title,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${movie.year} - Rating: ${movie.rating}',
-                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -184,87 +216,38 @@ class _MoviesPageState extends State<MoviesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            _isSearchMode ? TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration:
-                  const InputDecoration(hintText: 'Search movies...', border: InputBorder.none),
-              onSubmitted: (query) async { await _searchMovies(query); },
-            ) : const Text('StreamRank'),
+        title: _isSearchMode
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                    hintText: 'Search movies...', border: InputBorder.none),
+                onSubmitted: (query) async {
+                  await _searchMovies(query);
+                },
+              )
+            : const Text('StreamRank'),
         backgroundColor: Colors.blue,
         actions: [
           IconButton(
-            icon:
-                Icon(_isSearchMode ? Icons.close : Icons.search),
-            onPressed:
-                () { setState(() { 
-                  // Toggle search mode and clear search field if exiting search mode
-                  if (!_isSearchMode) { 
-                    Future.delayed(Duration.zero, () async => await _fetchInitialMovies());
-                  } 
-                  else { 
-                    _searchController.clear(); 
-                  }
-                  _isSearchMode = !_isSearchMode; 
-                }); },
+            icon: Icon(_isSearchMode ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                // Toggle search mode and clear search field if exiting search mode
+                if (!_isSearchMode) {
+                  Future.delayed(
+                      Duration.zero, () async => await _fetchInitialMovies());
+                } else {
+                  _searchController.clear();
+                }
+                _isSearchMode = !_isSearchMode;
+              });
+            },
           ),
         ],
       ),
-      drawer:
-          Drawer(
-            child:
-                ListView(padding:
-                    EdgeInsets.zero, children:
-                    [
-                      DrawerHeader(decoration:
-                          const BoxDecoration(color:
-                              Colors.blue), child:
-                          const Text("StreamRank",
-                              style:
-                                  TextStyle(color:
-                                      Colors.white, fontSize:
-                                      24)),),
-                      ListTile(leading:
-                          const Icon(Icons.movie), title:
-                          const Text('Movies'), onTap:
-                          () {},),
-                      ListTile(leading:
-                          const Icon(Icons.live_tv), title:
-                          const Text('Channels'), onTap:
-                          () {},),
-                      ListTile(leading:
-                          const Icon(Icons.animation), title:
-                          const Text('Animes'), onTap:
-                          () {},),
-                      if(AuthApiService.isSignedIn)
-                        ...[
-                          ListTile(leading:
-                              const Icon(Icons.favorite), title:
-                              const Text('Favorites'), onTap:
-                              () { Navigator.push(context,
-                                  MaterialPageRoute(builder:(context)
-                                      => const FavoriteMoviesPage())); },),
-                          ListTile(leading:
-                              const Icon(Icons.person), title:
-                              const Text('Profile'), onTap:
-                              () {
-                                Navigator.push(context,
-                                  MaterialPageRoute(builder:(context)
-                                      => ProfilePage()));
-                              },),
-                          ListTile(leading:
-                              const Icon(Icons.logout), title:
-                              const Text('Disconnect'), onTap:
-                              () {
-                                AuthApiService.isSignedIn = false;
-                                Config.logout();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder:(context)
-                        => const SignInPage()));},),
-                        ]
-                    ],),),
-      body:_buildMoviesList(), // Call build list method directly
+      drawer: const CustomDrawer(),
+      body: _buildMoviesList(), // Call build list method directly
     );
-}
+  }
 }

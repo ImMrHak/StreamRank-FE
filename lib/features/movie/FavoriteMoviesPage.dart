@@ -3,6 +3,7 @@ import 'package:image_network/image_network.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/FavoriteMovie.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
+import 'package:streamrank/features/widgets/custom_drawer.dart';
 class FavoriteMoviesPage extends StatelessWidget {
   const FavoriteMoviesPage({super.key});
 
@@ -12,6 +13,7 @@ class FavoriteMoviesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Favorite Movies'),
       ),
+      drawer: const CustomDrawer(),
       body: FutureBuilder<List<FavoriteMovie>>(
         future: UserApiService.getFavoriteMovies(),
         builder: (context, snapshot) {

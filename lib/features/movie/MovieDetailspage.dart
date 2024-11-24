@@ -5,6 +5,8 @@ import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/FavoriteMovie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
+import 'package:streamrank/features/widgets/custom_drawer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MovieDetailsPage extends StatefulWidget {
   final int movieId;
@@ -48,6 +50,15 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     );
   }
 
+  Future<void> _launchWatchUrl(String imdbCode) async {
+    final url = Uri.parse('https://vidsrc.to/embed/movie/$imdbCode');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +66,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
       appBar: AppBar(
         title: const Text('Movie Details'),
       ),
+      drawer: const CustomDrawer(),
       body: FutureBuilder<Movie>(
         future: _fetchMovieDetails(),
         builder: (context, snapshot) {
@@ -167,9 +179,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
               } else if (index == 1) {
                 Navigator.pop(context); // Go back to the main page
               } else if (index == 2) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Watch feature coming soon!')),
-                );
+                _launchWatchUrl(movie.imdbCode);
               }
             },
           );

@@ -227,6 +227,7 @@ class UserApiService implements ApiService {
   // Get My Info - /getMyInfo
   Future<User> getMyInfo() async {
     String token = await Config.getToken() as String;
+
     if (!isTokenValid(token)) {
       throw Exception('User is not authenticated');
     }

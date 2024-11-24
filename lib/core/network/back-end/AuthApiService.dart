@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignUpDTO.dart';
 import 'package:streamrank/core/network/back-end/dto/authentication/UserSignInDTO.dart';
 import 'package:streamrank/core/utils/Config.dart';
 
 class AuthApiService {
   final String baseUrl = Config.springBaseUrl;
+  static bool isSignedIn = false;
   // Sign Up - /SignUp
   @override
   Future<Map<String, dynamic>> signUp(UserSignUpDTO signUpDTO) async {
@@ -61,6 +63,10 @@ class AuthApiService {
       // Save token and rid in secure storage via Config
       await Config.secureStorage.write(key: 'jwt_token', value: token);
       await Config.secureStorage.write(key: 'rid', value: rid);
+
+      print("TOKEN:" + token);
+
+      isSignedIn = true;
 
       // Return a map containing both token and rid
       return {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_network/image_network.dart';
 import 'package:streamrank/core/network/back-end/ApiService.dart';
+import 'package:streamrank/core/network/back-end/UserApiService.dart';
+import 'package:streamrank/core/network/models/FavoriteMovie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 
@@ -17,7 +19,6 @@ class MovieDetailsPage extends StatefulWidget {
 }
 
 class _MovieDetailsPageState extends State<MovieDetailsPage> {
-  final List<Movie> _favoriteMovies = []; // List to store favorite movies
 
   // Fetch movie details without authentication
   Future<Movie> _fetchMovieDetails() async {
@@ -29,21 +30,24 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     }
   }
 
-  // Add movie to favorites
   void _addToFavorites(Movie movie) {
     setState(() {
-      if (!_favoriteMovies.contains(movie)) {
-        _favoriteMovies.add(movie);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${movie.title} added to favorites!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${movie.title} is already in favorites!')),
-        );
+      UserApiService apiService = UserApiService();
+      apiService.saveFavoriteMovie(FavoriteMovie.fromMovie(movie));
+
+      for(int i = 0; i < UserApiService.favoriteMovies.length; i++){
+        if(UserApiService.favoriteMovies[i].id == movie.id){
+          UserApiService.favoriteMovies.removeAt(i);
+        }
       }
+
+      if(!UserApiService.favoriteMovies.contains(movie)) UserApiService.favoriteMovies.add(movie); // Add movie to the favorites list
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${movie.titleLong} added to favorites!')),
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +150,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.favorite),
                 label: 'Favorite',
+
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),

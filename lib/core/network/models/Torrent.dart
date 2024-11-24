@@ -16,4 +16,9 @@ class Torrent {
       url: json['url'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Torrent{quality: $quality, size: $size, url: $url}';
+  }
 }

@@ -12,4 +12,6 @@ abstract class ApiService {
 
   /// Get detailed information about a specific movie.
   Future<Movie> getMovieDetails(int movieId);
+
+  Future<List<Movie>> searchMovies(String queryTerm);
 }

@@ -5,8 +5,8 @@ import 'package:streamrank/core/network/back-end/AuthApiService.dart';
 import 'package:streamrank/core/network/back-end/UserApiService.dart';
 import 'package:streamrank/core/network/models/Movie.dart';
 import 'package:streamrank/core/network/no-back-end/MovieApiService.dart';
+import 'package:streamrank/features/movie/FavoriteMoviesPage.dart';
 import 'package:streamrank/features/movie/MovieDetailsPage.dart';
-import 'package:streamrank/features/movie/FavoriteMoviesPage.dart'; // Import the FavoriteMoviesPage
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -17,7 +17,6 @@ class MoviesPage extends StatefulWidget {
 
 class _MoviesPageState extends State<MoviesPage> {
   List<Movie> _movies = [];
-  List<Movie> _favoriteMovies = []; // List to hold favorite movies
   int _currentPage = 1;
   bool _isLoading = false;
   bool _hasMoreMovies = true;
@@ -26,7 +25,6 @@ class _MoviesPageState extends State<MoviesPage> {
 
   Future<List<Movie>> _fetchMovies() async {
     ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
-
     try {
       return await apiService.getMovies();
     } catch (e) {
@@ -40,13 +38,45 @@ class _MoviesPageState extends State<MoviesPage> {
     }
   }
 
+  Future<void> _searchMovies(String query) async {
+    if (query.isNotEmpty) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      ApiService apiService = (await AuthApiService.ping()) ? UserApiService() : MovieApiService();
+
+      try {
+        final searchedMovies = await apiService.searchMovies(query);
+        setState(() {
+          _movies = searchedMovies;
+          _currentPage = 1;
+          _hasMoreMovies = false;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to search movies: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else {
+      final originalMovies = await _fetchMovies();
+      setState(() {
+        _movies = originalMovies;
+        _currentPage = 1;
+        _hasMoreMovies = true;
+      });
+    }
+  }
+
   Future<void> _fetchNextMovies() async {
     if (_isLoading || !_hasMoreMovies) return;
-
     setState(() {
       _isLoading = true;
     });
-
     try {
       final apiService = UserApiService();
       final newMovies = await apiService.getNextMovies(_currentPage);
@@ -121,29 +151,6 @@ class _MoviesPageState extends State<MoviesPage> {
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          _favoriteMovies.contains(movie)
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: _favoriteMovies.contains(movie) ? Colors.red : Colors.grey,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            if (_favoriteMovies.contains(movie)) {
-                              _favoriteMovies.remove(movie);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${movie.title} removed from favorites!')),
-                              );
-                            } else {
-                              _favoriteMovies.add(movie);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${movie.title} added to favorites!')),
-                              );
-                            }
-                          });
-                        },
-                      ),
                     ],
                   ),
                 ),
@@ -151,16 +158,6 @@ class _MoviesPageState extends State<MoviesPage> {
             },
           ),
         ),
-        if (_hasMoreMovies)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () => _fetchNextMovies(),
-              child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Load More Movies'),
-            ),
-          ),
       ],
     );
   }
@@ -171,17 +168,16 @@ class _MoviesPageState extends State<MoviesPage> {
       appBar: AppBar(
         title: _isSearchMode
             ? TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Search movies...',
-                  border: InputBorder.none,
-                ),
-                onSubmitted: (query) {
-                  // Handle search query
-                  print('Search query: $query');
-                },
-              )
+          controller: _searchController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Search movies...',
+            border: InputBorder.none,
+          ),
+          onSubmitted: (query) async {
+            await _searchMovies(query);
+          },
+        )
             : const Text('StreamRank'),
         backgroundColor: Colors.blue,
         actions: [
@@ -192,6 +188,7 @@ class _MoviesPageState extends State<MoviesPage> {
                 _isSearchMode = !_isSearchMode;
                 if (!_isSearchMode) {
                   _searchController.clear();
+                  Future.delayed(Duration.zero, () async => await _fetchMovies());
                 }
               });
             },
@@ -203,59 +200,46 @@ class _MoviesPageState extends State<MoviesPage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: const Text(
-                'StreamRank',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+              decoration: const BoxDecoration(color: Colors.blue),
+              child: const Text("StreamRank", style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
             ListTile(
               leading: const Icon(Icons.movie),
               title: const Text('Movies'),
-              onTap: () {
-                // Navigate to Movies page
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.favorite),
-              title: const Text('Favorites'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FavoriteMoviesPage(
-                      favoriteMovies: _favoriteMovies,
-                    ),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                // Navigate to Profile page
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.live_tv),
               title: const Text('Channels'),
-              onTap: () {
-                // Navigate to Channels page
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.animation),
               title: const Text('Animes'),
-              onTap: () {
-                // Navigate to Animes page
-              },
+              onTap: () {},
             ),
+            if(AuthApiService.isSignedIn) ...[
+              ListTile(
+                leading: const Icon(Icons.favorite),
+                title: const Text('Favorites'),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) =>
+                          const FavoriteMoviesPage()
+                      ));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('Profile'),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Disconnect'),
+                onTap: () {},
+              ),
+            ]
           ],
         ),
       ),
@@ -267,7 +251,9 @@ class _MoviesPageState extends State<MoviesPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            _movies = snapshot.data!;
+            if (!_isSearchMode) {
+              _movies = snapshot.data!;
+            }
             return _buildMoviesList();
           } else {
             return const Center(child: Text('No movies found.'));

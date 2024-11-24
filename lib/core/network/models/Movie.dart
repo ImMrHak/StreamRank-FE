@@ -50,5 +50,10 @@ class Movie {
           .toList(),
     );
   }
+
+  @override
+  String toString() {
+    return 'Movie{id: $id, title: $title, titleLong: $titleLong, year: $year, description: $description, rating: $rating, imdbCode: $imdbCode, url: $url, coverImage: $coverImage, largeCoverImage: $largeCoverImage, backgroundImage: $backgroundImage, genres: ${genres.join(', ')}, torrents: ${torrents.length}}';
+  }
 }
 

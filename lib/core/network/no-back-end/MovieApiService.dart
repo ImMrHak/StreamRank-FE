@@ -107,4 +107,29 @@ Future<List<Movie>> getMovieSuggestions(int movieId) async {
       throw Exception('Error fetching movie details: $e');
     }
   }
+
+  Future<List<Movie>> searchMovies(String queryTerm) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}list_movies.json?query_term=$queryTerm'),
+      );
+
+      // Check if the response is successful
+      if (response.statusCode == 200) {
+        // Decode the response body
+        final data = json.decode(response.body);
+
+        final movieList = (data['data']['movies'] as List)
+            .map((movieJson) => Movie.fromJson(movieJson))
+            .toList();
+
+        return movieList;
+      } else {
+        throw Exception('Failed to load movies');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the request
+      throw Exception('Error fetching movies: $e');
+    }
+  }
 }

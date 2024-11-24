@@ -36,6 +36,9 @@ dependencies:
   flutter_form_builder: ^9.5.0 # TO BUILD GOOD UI DESIGN
   form_builder_validators: ^11.0.0 # INPUT VALIDATION
   image_network: ^2.5.6
+  url_launcher: ^6.0.20
+  video_player: ^2.4.5
+  torrent_streamer: ^0.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

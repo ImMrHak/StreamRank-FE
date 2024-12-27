@@ -17,6 +17,14 @@ class Torrent {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'quality': quality,
+      'size': size,
+      'url': url,
+    };
+  }
+
   @override
   String toString() {
     return 'Torrent{quality: $quality, size: $size, url: $url}';

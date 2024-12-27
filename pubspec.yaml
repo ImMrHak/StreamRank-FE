@@ -30,21 +30,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_dotenv: ^5.2.1 # READ .ENV FILE
-  http: ^1.2.2 # SEND AND RECEIVES HTTP REQUEST
+  cupertino_icons: ^1.0.2
+  http: ^1.1.0
+  image_network: ^2.5.4+1
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  flutter_dotenv: ^5.1.0
+  flutter_form_builder: ^9.1.1
+  form_builder_validators: ^11.0.0
+  google_fonts: ^6.1.0
   flutter_secure_storage: ^9.2.2 # STORE JWT TOKEN
-  flutter_form_builder: ^9.5.0 # TO BUILD GOOD UI DESIGN
-  form_builder_validators: ^11.0.0 # INPUT VALIDATION
-  image_network: ^2.5.6
   url_launcher: ^6.0.20
   video_player: ^2.4.5
   torrent_streamer: ^0.0.1
+  intl: ^0.19.0
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-
-  intl: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

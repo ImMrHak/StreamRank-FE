@@ -21,6 +21,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void _submitForm(BuildContext context) async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState?.value;
+      print('Form data: $formData'); // Debug print
 
       if (formData!['password'] != formData['confirmPassword']) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -30,8 +31,13 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       try {
+        print('Creating SignUpDTO...'); // Debug print
         final signUpDTO = UserSignUpDTO.fromFormData(formData);
+        print('SignUpDTO created: ${signUpDTO.toJson()}'); // Debug print
+
+        print('Calling signUp...'); // Debug print
         final response = await authApiService.signUp(signUpDTO);
+        print('SignUp response: $response'); // Debug print
 
         if (response["status"] == "success") {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -44,8 +50,9 @@ class _SignUpPageState extends State<SignUpPage> {
           );
         }
       } catch (e) {
+        print('Error during signup: $e'); // Debug print
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Internal Server Error')),
+          SnackBar(content: Text('Error: $e')), // Show actual error
         );
       }
     } else {
@@ -58,105 +65,194 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Adjust layout when keyboard is shown
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: FormBuilder(
-              key: _formKey,
-              child: Center(
-                child: Card(
-                  elevation: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(32.0),
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: SingleChildScrollView(
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: 24,
+                left: 24,
+                right: 24,
+              ),
+              child: FormBuilder(
+                key: _formKey,
+                child: Center(
+                  child: Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(32.0),
+                      constraints: const BoxConstraints(maxWidth: 400),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const FlutterLogo(size: 100),
-                          _gap(),
+                          Hero(
+                            tag: 'logo',
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                              ),
+                              child: Icon(
+                                Icons.movie_outlined,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
                           Text(
                             "Create Account",
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "Fill in the details below to create a new account.",
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            "Join StreamRank to discover and track your favorite movies",
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Colors.grey[600],
+                                ),
                             textAlign: TextAlign.center,
                           ),
-                          _gap(),
-
-                          // First Name
-                          FormBuilderTextField(
-                            name: 'firstName',
-                            decoration: const InputDecoration(
-                              labelText: 'First Name',
-                              hintText: 'Enter your first name',
-                              prefixIcon: Icon(Icons.person),
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: FormBuilderValidators.required(),
+                          const SizedBox(height: 32),
+                          
+                          // Personal Information Section
+                          Row(
+                            children: [
+                              Expanded(
+                                child: FormBuilderTextField(
+                                  name: 'firstName',
+                                  decoration: InputDecoration(
+                                    labelText: 'First Name',
+                                    hintText: 'Enter first name',
+                                    prefixIcon: Icon(
+                                      Icons.person_outline,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.required(),
+                                  ]),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: FormBuilderTextField(
+                                  name: 'lastName',
+                                  decoration: InputDecoration(
+                                    labelText: 'Last Name',
+                                    hintText: 'Enter last name',
+                                    prefixIcon: Icon(
+                                      Icons.person_outline,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.required(),
+                                  ]),
+                                ),
+                              ),
+                            ],
                           ),
-                          _gap(),
-
-                          // Last Name
+                          const SizedBox(height: 16),
+                          
                           FormBuilderTextField(
-                            name: 'lastName',
-                            decoration: const InputDecoration(
-                              labelText: 'Last Name',
-                              hintText: 'Enter your last name',
-                              prefixIcon: Icon(Icons.person_outline),
-                              border: OutlineInputBorder(),
+                            name: 'userName',
+                            decoration: InputDecoration(
+                              labelText: 'Username',
+                              hintText: 'Choose a unique username',
+                              prefixIcon: Icon(
+                                Icons.alternate_email,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                            validator: FormBuilderValidators.required(),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              FormBuilderValidators.minLength(3),
+                            ]),
                           ),
-                          _gap(),
-
-                          // Email
+                          const SizedBox(height: 16),
+                          
                           FormBuilderTextField(
                             name: 'email',
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Email',
-                              hintText: 'Enter your email address',
-                              prefixIcon: Icon(Icons.email),
-                              border: OutlineInputBorder(),
+                              hintText: 'Enter your email',
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required(),
                               FormBuilderValidators.email(),
                             ]),
                           ),
-                          _gap(),
+                          const SizedBox(height: 16),
 
-                          // Username
-                          FormBuilderTextField(
-                            name: 'userName',
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              hintText: 'Choose a username',
-                              prefixIcon: Icon(Icons.account_circle),
-                              border: OutlineInputBorder(),
+                          FormBuilderDateTimePicker(
+                            name: 'dateOfBirth',
+                            inputType: InputType.date,
+                            format: DateFormat('yyyy-MM-dd'),
+                            decoration: InputDecoration(
+                              labelText: 'Date of Birth',
+                              hintText: 'Select your date of birth',
+                              prefixIcon: Icon(
+                                Icons.calendar_today,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                            validator: FormBuilderValidators.required(),
+                            validator: FormBuilderValidators.compose([
+                              FormBuilderValidators.required(),
+                              (value) {
+                                if (value != null) {
+                                  final now = DateTime.now();
+                                  final age = now.year - value.year;
+                                  if (age < 13) {
+                                    return 'You must be at least 13 years old';
+                                  }
+                                }
+                                return null;
+                              },
+                            ]),
                           ),
-                          _gap(),
+                          const SizedBox(height: 16),
 
-                          // Password
                           FormBuilderTextField(
                             name: 'password',
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              hintText: 'Create a password',
-                              prefixIcon: const Icon(Icons.lock),
-                              border: const OutlineInputBorder(),
+                              hintText: 'Create a strong password',
+                              prefixIcon: Icon(
+                                Icons.lock_outline,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                    _isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                                  _isPasswordVisible
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _isPasswordVisible = !_isPasswordVisible;
@@ -166,24 +262,28 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required(),
-                              FormBuilderValidators.minLength(8),
-                              FormBuilderValidators.maxLength(20),
+                              FormBuilderValidators.minLength(6),
                             ]),
                           ),
-                          _gap(),
-
-                          // Confirm Password
+                          const SizedBox(height: 16),
+                          
                           FormBuilderTextField(
                             name: 'confirmPassword',
                             obscureText: !_isConfirmPasswordVisible,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
-                              hintText: 'Re-enter your password',
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              border: const OutlineInputBorder(),
+                              hintText: 'Repeat your password',
+                              prefixIcon: Icon(
+                                Icons.lock_outline,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                    _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                                  _isConfirmPasswordVisible
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
@@ -193,52 +293,49 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             validator: FormBuilderValidators.compose([
                               FormBuilderValidators.required(),
-                              FormBuilderValidators.minLength(8),
-                              FormBuilderValidators.maxLength(20),
+                              (value) {
+                                if (value != _formKey.currentState?.fields['password']?.value) {
+                                  return 'Passwords do not match';
+                                }
+                                return null;
+                              },
                             ]),
                           ),
-                          _gap(),
-
-                          // Date of Birth
-                          FormBuilderDateTimePicker(
-                            name: 'dateOfBirth',
-                            inputType: InputType.date,
-                            format: DateFormat('yyyy-MM-dd'),
-                            decoration: const InputDecoration(
-                              labelText: 'Date of Birth',
-                              hintText: 'Select your date of birth',
-                              prefixIcon: Icon(Icons.calendar_today),
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: FormBuilderValidators.required(),
-                          ),
-                          _gap(),
-
-                          // Sign Up Button
+                          const SizedBox(height: 24),
+                          
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4)),
-                              ),
                               onPressed: () => _submitForm(context),
                               child: const Padding(
-                                padding: EdgeInsets.all(10.0),
+                                padding: EdgeInsets.all(16),
                                 child: Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
+                                  'Create Account',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 16),
-
-                          // Back to Sign In
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Already have an account? Sign In'),
+                          
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Already have an account?',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -252,7 +349,4 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
   }
-
-
-  Widget _gap() => const SizedBox(height: 16);
 }

@@ -11,11 +11,18 @@ class AuthApiService {
   // Sign Up - /SignUp
   @override
   Future<Map<String, dynamic>> signUp(UserSignUpDTO signUpDTO) async {
+    final requestBody = jsonEncode(signUpDTO.toJson());
+    print('Request URL: ${baseUrl}auth/SignUp');
+    print('Request body: $requestBody');
+
     final response = await http.post(
       Uri.parse('${baseUrl}auth/SignUp'),
-      body: jsonEncode(signUpDTO.toJson()),
+      body: requestBody,
       headers: {'Content-Type': 'application/json'},
     );
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -38,7 +45,7 @@ class AuthApiService {
         'status': 'success'
       };
     } else {
-      throw Exception('Failed to sign up');
+      throw Exception('Failed to sign up. Status code: ${response.statusCode}, Response: ${response.body}');
     }
   }
 
